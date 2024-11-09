@@ -6,6 +6,15 @@ class ShoppingService {
   constructor() {
     this.repository = new ShoppingRepository();
   }
+  async getCart({_id}){
+    try{
+      const cartItems=await this.repository.Cart(_id)
+
+      return FormateData(cartItems);
+    }catch(err){
+      throw err;
+    }
+  }
 
   async PlaceOrder(userInput) {
     const { _id, txnNumber } = userInput;

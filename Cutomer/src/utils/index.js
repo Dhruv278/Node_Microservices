@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const amqp=require("amqplib")
 
-const { APP_SECRET } = require("../config");
+const { APP_SECRET, MESSAGE_BROKER_URL, EXCHANGE_NAME, QUEUE_NAME } = require("../config");
 
 //Utility functions
 module.exports.GenerateSalt = async () => {
@@ -49,3 +50,33 @@ module.exports.FormateData = (data) => {
     throw new Error("Data Not found!");
   }
 };
+
+
+
+
+//  Rabbit MQ setup
+
+module.exports.CreateChannel=async()=>{
+  try {
+    const connection = await amqp.connect(MESSAGE_BROKER_URL);  // Connect on port 5672
+    console.log("Connected to RabbitMQ");
+    const channel = await connection.createChannel();
+    await channel.assertExchange(EXCHANGE_NAME, 'direct', false);
+    return channel;
+
+  } catch (e) {
+    console.log("Error in creating MQ channel", e);
+    throw e;
+  }
+}
+
+module.exports.ConsumeMessage=async(channel,service,binding_key)=>{
+  const appQueue=await channel.assertQueue(QUEUE_NAME);
+
+  await channel.bindQueue(appQueue.queue, EXCHANGE_NAME, binding_key);
+
+  channel.consume(appQueue.queue,data=>{
+    console.log(`[x] Received ${data.content.toString()}`);
+    channel.ack(data);
+  })
+}

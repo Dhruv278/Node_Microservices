@@ -107,9 +107,9 @@ module.exports = (app,channel) => {
         try {     
             const {data}=await service.getProductPayload(_id,{productId:product_id,quantity:qty},"ADD_TO_CART");
 
-            await PublishMessage(channel,CUSTOMER_BINDING_KEY,JSON.stringify(data));
+            await PublishMessage(channel,CUSTOMER_BINDING_KEY,JSON.stringify({...data,binding_key:CUSTOMER_BINDING_KEY}));
 
-            await PublishMessage(channel,SHOPPING_BINDING_KEY,JSON.stringify(data));
+            await PublishMessage(channel,SHOPPING_BINDING_KEY,JSON.stringify({...data,binding_key:SHOPPING_BINDING_KEY}));
             const response={
                 product:data.data.product,
                 qty:data.data.qty,

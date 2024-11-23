@@ -84,7 +84,7 @@ module.exports.CreateChannel=async()=>{
 module.exports.PublishMessage=async(channel,binding_key, message)=>{
   try{
     await channel.publish(EXCHANGE_NAME,binding_key, Buffer.from(message));
-    console.log(`[x] Sent ${message}`);
+    console.log(`[x] Sent  ${binding_key} ${message}`);
   }catch(e){
     throw e;
   }

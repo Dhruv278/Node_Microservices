@@ -49,6 +49,7 @@ class ProductRepository {
   }
 
   async FindById(id) {
+    console.log("id of product ",id)
     try {
       return await ProductModel.findById(id);
     } catch (err) {

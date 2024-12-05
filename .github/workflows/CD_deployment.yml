@@ -53,8 +53,8 @@ jobs:
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        application_name: "Node-Microservice-dhruv"
-        environment_name: "Node-Microservice-dhruv-env"
+        application_name: "NTest-application"
+        environment_name: "Test-application-env"
         version_label: "ver-${{ github.sha }}"
         region: ap-south-1
         deployment_package: deploy.zip

@@ -1,0 +1,60 @@
+name: Deployment on QA
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy_on_qa:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Create Product env file
+      working-directory: ./Product
+      run: |
+        touch .env
+        echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env
+        echo MONGODB_URI=${{ secrets.PRODUCT_MONGODB_URI }} >> .env
+        echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+        echo PORT=8003 >> .env
+        cat .env
+
+    - name: Create Customer env file
+      working-directory: ./Customer
+      run: |
+        touch .env
+        echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env
+        echo MONGODB_URI=${{ secrets.CUSTOMER_MONGODB_URI }} >> .env
+        echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+        echo PORT=8001 >> .env
+        cat .env
+
+    - name: Create Shopping env file
+      working-directory: ./Shopping
+      run: |
+        touch .env
+        echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env
+        echo MONGODB_URI=${{ secrets.SHOPPING_MONGODB_URI }} >> .env
+        echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+        echo PORT=8002 >> .env
+        cat .env
+
+    - name: Generate deployment package
+      run: |
+        zip -r deploy.zip . -x '*.git' 'node_modules/*' '*.env.local'
+
+    - name: Deploy on QA Beanstalk
+      uses: einaregilsson/beanstalk-deploy@v20
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: "Node-Microservice-dhruv"
+        environment_name: "Node-Microservice-dhruv-env"
+        version_label: "ver-${{ github.sha }}"
+        region: ap-south-1
+        deployment_package: deploy.zip
